@@ -755,7 +755,12 @@ export function getSelectedNodes(editable) {
  */
 export function getDeepRange(editable, { range, sel, splitText, select, correctTripleClick } = {}) {
     sel = sel || editable.parentElement && editable.ownerDocument.getSelection();
-    if (sel && sel.isCollapsed && sel.anchorNode && sel.anchorNode.nodeName === "BR") {
+    if (
+        sel &&
+        sel.isCollapsed &&
+        sel.anchorNode &&
+        (sel.anchorNode.nodeName === "BR" || (sel.anchorNode.nodeType === Node.TEXT_NODE && sel.anchorNode.textContent === ''))
+    ) {
         setCursorStart(sel.anchorNode.parentElement, false);
     }
     range = range ? range.cloneRange() : sel && sel.rangeCount && sel.getRangeAt(0).cloneRange();
@@ -1362,9 +1367,9 @@ export function hasClass(node, props) {
  */
 export function isSelectionFormat(editable, format) {
     const selectedNodes = getTraversedNodes(editable)
-        .filter(n => n.nodeType === Node.TEXT_NODE && n.nodeValue.trim().length);
+        .filter(n => n.nodeType === Node.TEXT_NODE);
     const isFormatted = formatsSpecs[format].isFormatted;
-    return selectedNodes && selectedNodes.every(n => isFormatted(n, editable));
+    return selectedNodes.length && selectedNodes.every(n => isFormatted(n, editable));
 }
 
 export function isUnbreakable(node) {
